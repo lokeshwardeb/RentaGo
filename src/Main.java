@@ -21,6 +21,8 @@ public class Main {
         System.out.println("\nAI Suggestion:");
         System.out.println(suggestion);
 
+        
+
 
         // Here you could parse the suggestion and show matching cars from cars.txt
         // Then allow booking
