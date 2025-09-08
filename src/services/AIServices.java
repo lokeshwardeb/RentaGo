@@ -8,7 +8,7 @@ public class AIServices {
 
     // private static final String API_KEY = "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"; 
     // private static final String API_KEY = "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"; 
-    private static final String API_KEY = "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"; 
+    private static final String API_KEY = "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"; 
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
     public static void main(String[] args) {

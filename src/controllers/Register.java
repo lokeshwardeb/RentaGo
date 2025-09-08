@@ -2,29 +2,33 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 
-public class CarRentals {
+ class GetRegister {
 
     // private static final String FILE_PATH = "../store_info/rentals.txt"; // your database file
     // private static final String FILE_PATH = "src\\controllers\\store\\rentals.txt"; // your database file
-    private static final String FILE_PATH = "src/controllers/store/rentals.txt"; // your database file
+
+    // add the users.txt file to store user info
+    private static final String FILE_PATH = "src/controllers/store/users.txt"; // your database file
     private static int nextID = 1; // auto-increment booking ID
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         while (true) {
-            System.out.println("\n1. Add Booking");
-            System.out.println("2. Search Booking");
-            System.out.println("3. Update Booking");
-            System.out.println("4. Delete Booking");
+
+            System.out.println("Welcome to the registration interface!");
+            System.out.println("\n1. Register a new User");
+            System.out.println("2. Search User");
+            System.out.println("3. Update User");
+            System.out.println("4. Delete User");
             System.out.println("5. Exit");
             System.out.print("Choose an option: ");
             String choice = sc.nextLine();
 
             switch (choice) {
-                case "1" -> addBooking(sc);
-                case "2" -> searchBooking(sc);
-                case "3" -> updateBooking(sc);
-                case "4" -> deleteBooking(sc);
+                case "1" -> registerUser(sc);
+                case "2" -> searchUser(sc);
+                case "3" -> updateUser(sc);
+                case "4" -> deleteUser(sc);
                 case "5" -> {
                     System.out.println("Exiting...");
                     return;
@@ -35,44 +39,44 @@ public class CarRentals {
     }
 
     // -------------------- Add Booking --------------------
-    private static void addBooking(Scanner sc) {
+    private static void registerUser(Scanner sc) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             System.out.print("Enter username: ");
             String username = sc.nextLine();
 
-            System.out.println("Enter journey details (end with a single line containing only 'END'):");
-            StringBuilder journey = new StringBuilder();
-            while (true) {
-                String line = sc.nextLine();
-                if (line.equalsIgnoreCase("END"))
-                    break;
-                journey.append(line).append("\n");
+            System.out.print("Enter password (Note please enter password carefully, you cannot change it later !!): ");
+            String password = sc.nextLine(); // for simplicity, password is same as username
+
+            // username.toLowerCase();
+
+            // check if the user already exists or not
+            boolean exists = isUserExists(username);
+            if (exists) {
+                System.out.println("Cannot Register !! User already exists! \n");
+                return;
             }
 
-            System.out.print("Enter number of passengers: ");
-            String passengers = sc.nextLine();
-
-            System.out.print("Enter car suggested: ");
-            String car = sc.nextLine();
+            
 
             int id = getNextID();
             bw.write("ID=" + id + "\n");
             bw.write("Username=" + username + "\n");
-            bw.write("Journey=" + journey.toString().trim() + "\n");
-            bw.write("Passengers=" + passengers + "\n");
-            bw.write("CarSuggested=" + car + "\n");
+            bw.write("Password=" + password + "\n");
+            // bw.write("Journey=" + journey.toString().trim() + "\n");
+            // bw.write("Passengers=" + passengers + "\n");
+            // bw.write("CarSuggested=" + car + "\n");
             bw.write("---\n");
 
-            System.out.println("✅ Booking added with ID " + id);
+            System.out.println("✅User added with ID " + id + "\n");
         } catch (IOException e) {
             System.out.println("Error writing to file: " + e.getMessage());
         }
     }
 
-    // -------------------- Search Booking --------------------
-    private static void searchBooking(Scanner sc) {
-        System.out.print("Enter search term (username/journey/car): ");
-        String term = sc.nextLine().toLowerCase();
+    private static boolean isUserExists(String input) {
+        // System.out.print("Enter search term (username/journey/car): ");
+        // String term = sc.nextLine().toLowerCase();
+        String term = input.toLowerCase();
 
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
@@ -85,6 +89,40 @@ public class CarRentals {
                     if (blockContent.toLowerCase().contains(term)) {
                         System.out.println("\nFound Booking:\n" + blockContent + "\n---");
                         found = true;
+                        return true;
+                    }
+                    block.clear();
+                } else {
+                    block.add(line);
+                }
+            }
+
+            System.out.println("User found for: " + term);
+        } catch (IOException e) {
+            System.out.println("Error reading file: " + e.getMessage());
+        }
+        return false;
+    }
+
+
+    
+
+    // -------------------- Search Booking --------------------
+    private static void searchUser(Scanner sc) {
+        System.out.print("Enter search user (username): ");
+        String term = sc.nextLine().toLowerCase();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            List<String> block = new ArrayList<>();
+            boolean found = false;
+
+            while ((line = br.readLine()) != null) {
+                if (line.equals("---")) {
+                    String blockContent = String.join("\n", block);
+                    if (blockContent.toLowerCase().contains(term)) {
+                        System.out.println("\nFound User:\n" + blockContent + "\n---");
+                        found = true;
                     }
                     block.clear();
                 } else {
@@ -93,14 +131,14 @@ public class CarRentals {
             }
 
             if (!found)
-                System.out.println("No booking found for: " + term);
+                System.out.println("No User found for: " + term);
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         }
     }
 
     // -------------------- Update Booking --------------------
-    private static void updateBooking(Scanner sc) {
+    private static void updateUser(Scanner sc) {
         System.out.print("Enter booking ID to update: ");
         String idToUpdate = sc.nextLine();
 
@@ -119,7 +157,7 @@ public class CarRentals {
                             .orElse("");
 
                     if (blockID.equals(idToUpdate)) {
-                        System.out.println("Current booking:\n" + String.join("\n", block));
+                        System.out.println("Current user:\n" + String.join("\n", block));
                         System.out.println("Enter new details (leave blank to keep current)");
 
                         Map<String, String> fields = new LinkedHashMap<>();
@@ -133,27 +171,27 @@ public class CarRentals {
                         if (!newUsername.isEmpty())
                             fields.put("Username", newUsername);
 
-                        System.out.println("Journey (" + fields.get("Journey") + ") (end with 'END'):");
-                        StringBuilder newJourney = new StringBuilder();
-                        while (true) {
-                            String jl = sc.nextLine();
-                            if (jl.equalsIgnoreCase("END"))
-                                break;
-                            if (!jl.isEmpty())
-                                newJourney.append(jl).append("\n");
-                        }
-                        if (newJourney.length() > 0)
-                            fields.put("Journey", newJourney.toString().trim());
+                        // System.out.println("Journey (" + fields.get("Journey") + ") (end with 'END'):");
+                        // StringBuilder newJourney = new StringBuilder();
+                        // while (true) {
+                        //     String jl = sc.nextLine();
+                        //     if (jl.equalsIgnoreCase("END"))
+                        //         break;
+                        //     if (!jl.isEmpty())
+                        //         newJourney.append(jl).append("\n");
+                        // }
+                        // if (newJourney.length() > 0)
+                        //     fields.put("Journey", newJourney.toString().trim());
 
-                        System.out.print("Passengers (" + fields.get("Passengers") + "): ");
-                        String newPassengers = sc.nextLine();
-                        if (!newPassengers.isEmpty())
-                            fields.put("Passengers", newPassengers);
+                        // System.out.print("Passengers (" + fields.get("Passengers") + "): ");
+                        // String newPassengers = sc.nextLine();
+                        // if (!newPassengers.isEmpty())
+                        //     fields.put("Passengers", newPassengers);
 
-                        System.out.print("CarSuggested (" + fields.get("CarSuggested") + "): ");
-                        String newCar = sc.nextLine();
-                        if (!newCar.isEmpty())
-                            fields.put("CarSuggested", newCar);
+                        // System.out.print("CarSuggested (" + fields.get("CarSuggested") + "): ");
+                        // String newCar = sc.nextLine();
+                        // if (!newCar.isEmpty())
+                        //     fields.put("CarSuggested", newCar);
 
                         // write updated block
                         for (Map.Entry<String, String> entry : fields.entrySet()) {
@@ -172,7 +210,7 @@ public class CarRentals {
             }
 
             Files.write(new File(FILE_PATH).toPath(), newLines);
-            System.out.println(updated ? "✅ Booking updated!" : "❌ Booking ID not found.");
+            System.out.println(updated ? "✅ Booking updated!" : "Booking ID not found.");
 
         } catch (IOException e) {
             System.out.println("Error updating file: " + e.getMessage());
@@ -180,8 +218,8 @@ public class CarRentals {
     }
 
     // -------------------- Delete Booking --------------------
-    private static void deleteBooking(Scanner sc) {
-        System.out.print("Enter booking ID to delete: ");
+    private static void deleteUser(Scanner sc) {
+        System.out.print("Enter user ID to delete: ");
         String idToDelete = sc.nextLine();
 
         try {
@@ -211,7 +249,7 @@ public class CarRentals {
             }
 
             Files.write(new File(FILE_PATH).toPath(), newLines);
-            System.out.println(deleted ? "✅ Booking deleted!" : "❌ Booking ID not found.");
+            System.out.println(deleted ? "User deleted!" : "❌ User ID not found.");
 
         } catch (IOException e) {
             System.out.println("Error deleting file: " + e.getMessage());
@@ -225,7 +263,7 @@ public class CarRentals {
             int maxID = 0;
             while ((line = br.readLine()) != null) {
                 if (line.startsWith("ID=")) {
-                    int id = Integer.parseInt(line.substring(3));
+                    int id = Integer.parseInt(line.substring(3)); 
                     if (id > maxID)
                         maxID = id;
                 }
@@ -235,4 +273,9 @@ public class CarRentals {
             return nextID++;
         }
     }
+}
+
+
+public class Register {
+    
 }

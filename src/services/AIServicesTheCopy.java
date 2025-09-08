@@ -5,7 +5,7 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-public class AIServices {
+public class AIServicesTheCopy {
 
     private static final String API_KEY = System.getenv("OPENROUTER_API_KEY"); 
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";

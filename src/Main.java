@@ -20,7 +20,7 @@ public class Main {
         }
 
         // Login / Register (simplified)
-        System.out.print("Enter your username: ");
+        System.out.print("Enter your username: hgell :  ");
         String username = sc.nextLine();
 
         // 
@@ -36,6 +36,7 @@ public class Main {
         System.out.println("\nAI Suggestion:");
         System.out.println(suggestion);
 
+        
         
 
 
