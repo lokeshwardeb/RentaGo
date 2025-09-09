@@ -13,13 +13,36 @@ public class CarRentals extends ManageUser {
     // database file
     // private static final String FILE_PATH =
     // "src\\controllers\\store\\rentals.txt"; // your database file
+
+    private static final String SESSION_FILE_PATH = "src/controllers/store/session.txt"; // your database file
+    
     private static final String FILE_PATH = "src/controllers/store/rentals.txt"; // your database file
     private static int nextID = 1; // auto-increment booking ID
+
+    public static boolean isUserApproved() {
+        try (BufferedReader br = new BufferedReader(new FileReader(SESSION_FILE_PATH))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("Status=")) {
+                    String status = line.substring(8);
+                    return status.equalsIgnoreCase("Approved");
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading session file: " + e.getMessage());
+        }
+        return false; // default to not approved
+    }
 
     public static void main(String[] args) {
         // check if user is logged in
         if (!ManageUser.isUserLoggedIn()) {
             System.out.println("Please login first to access Car Rentals.");
+            return;
+        }
+
+        if(!isUserApproved()){
+            System.out.println("Your account is not approved yet. Please contact admin.");
             return;
         }
 
@@ -32,6 +55,11 @@ public class CarRentals extends ManageUser {
         // System.out.println("Logged in user: " + ManageUser.currentUser);
         // System.out.println("Role: " + ManageUser.currentRole);
         Scanner sc = new Scanner(System.in);
+
+             
+        
+
+
         while (true) {
             System.out.println("\n1. Add Booking");
             System.out.println("2. Search Booking");
@@ -57,6 +85,9 @@ public class CarRentals extends ManageUser {
 
     
     private static void addBooking(Scanner sc) {
+
+   
+
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             System.out.print("Enter ClientName: ");
             String ClientName = sc.nextLine();

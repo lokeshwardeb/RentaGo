@@ -1,3 +1,4 @@
 Username=admin
 Role=Admin
+Status=Rejected
 ---

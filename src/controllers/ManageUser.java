@@ -39,9 +39,10 @@ class ManageUser {
                 System.out.println("3. Search User");
                 System.out.println("4. Update User");
                 System.out.println("5. Delete User");
+                System.out.println("6. Approve User");
             }
 
-            System.out.println("6. Exit from the login / registration interface\n");
+            System.out.println("7. Exit from the login / registration interface\n");
             System.out.print("Choose an option: ");
             String choice = sc.nextLine();
 
@@ -71,7 +72,8 @@ class ManageUser {
                 case "3" -> searchUser(sc);
                 case "4" -> updateUser(sc);
                 case "5" -> deleteUser(sc);
-                case "6" -> {
+                case "6" -> approveUser(sc);
+                case "7" -> {
                     System.out.println("Exiting...");
                     return;
                 }
@@ -182,6 +184,7 @@ class ManageUser {
                         try (BufferedWriter sbw = new BufferedWriter(new FileWriter(SESSION_FILE_PATH, true))) {
                             sbw.write("Username=" + username + "\n");
                             sbw.write("Role=" + (userBlock.contains("Role=Admin") ? "Admin" : "User") + "\n");
+                            sbw.write("Status=" + (userBlock.contains("Status=Rejected") ? "Rejected" : "Approved") + "\n");
                             sbw.write("---\n");
 
                         } catch (IOException e) {
@@ -363,6 +366,64 @@ class ManageUser {
      * 
      */
 
+    private static void approveUser(Scanner sc) {
+        System.out.print("Enter user ID to approve: ");
+        String idToUpdate = sc.nextLine();
+
+        try {
+            List<String> lines = new ArrayList<>(Files.readAllLines(new File(FILE_PATH).toPath()));
+            List<String> newLines = new ArrayList<>();
+            List<String> block = new ArrayList<>();
+            boolean updated = false;
+
+            for (String line : lines) {
+                if (line.equals("---")) {
+                    String blockID = block.stream()
+                            .filter(l -> l.startsWith("ID="))
+                            .findFirst()
+                            .map(l -> l.substring(3))
+                            .orElse("");
+
+                    if (blockID.equals(idToUpdate)) {
+                        System.out.println("Current user:\n" + String.join("\n", block));
+                        System.out.println("Enter new details (leave blank to keep current)");
+
+                        Map<String, String> fields = new LinkedHashMap<>();
+                        for (String l : block) {
+                            int idx = l.indexOf("=");
+                            fields.put(l.substring(0, idx), l.substring(idx + 1));
+                        }
+
+                        System.out.print("Status (" + fields.get("Status") + "): ");
+                        String status = sc.nextLine();
+                        if (!status.isEmpty())
+                            fields.put("Status", status);
+
+                        // write updated block
+                        for (Map.Entry<String, String> entry : fields.entrySet()) {
+                            newLines.add(entry.getKey() + "=" + entry.getValue());
+                        }
+                        newLines.add("---");
+                        updated = true;
+                    } else {
+                        newLines.addAll(block);
+                        newLines.add("---");
+                    }
+                    block.clear();
+                } else {
+                    block.add(line);
+                }
+            }
+
+            Files.write(new File(FILE_PATH).toPath(), newLines);
+            System.out.println(updated ? "✅ Booking updated!" : "Booking ID not found.");
+
+        } catch (IOException e) {
+            System.out.println("Error updating file: " + e.getMessage());
+        }
+    }
+
+
     private static void updateUser(Scanner sc) {
         System.out.print("Enter user ID to update: ");
         String idToUpdate = sc.nextLine();
@@ -456,7 +517,7 @@ class ManageUser {
             }
 
             Files.write(new File(FILE_PATH).toPath(), newLines);
-            System.out.println(deleted ? "User deleted!" : "❌ User ID not found.");
+            System.out.println(deleted ? "User deleted!" : "User ID not found.");
 
         } catch (IOException e) {
             System.out.println("Error deleting file: " + e.getMessage());
