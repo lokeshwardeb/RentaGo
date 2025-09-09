@@ -1,0 +1,6 @@
+ID=1
+Car Name=T YOTA
+Type=DFD
+Passengers Capacity=22
+Rate=2500
+---

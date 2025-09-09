@@ -1,15 +1,36 @@
+// package store;
+
+
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 
-public class CarRentals {
+// import controllers.ManageUser;
 
-    // private static final String FILE_PATH = "../store_info/rentals.txt"; // your database file
-    // private static final String FILE_PATH = "src\\controllers\\store\\rentals.txt"; // your database file
+public class CarRentals extends ManageUser {
+
+    // private static final String FILE_PATH = "../store_info/rentals.txt"; // your
+    // database file
+    // private static final String FILE_PATH =
+    // "src\\controllers\\store\\rentals.txt"; // your database file
     private static final String FILE_PATH = "src/controllers/store/rentals.txt"; // your database file
     private static int nextID = 1; // auto-increment booking ID
 
     public static void main(String[] args) {
+        // check if user is logged in
+        if (!ManageUser.isUserLoggedIn()) {
+            System.out.println("Please login first to access Car Rentals.");
+            return;
+        }
+
+        // System.out.println("Welcome Mr. " + ManageUser.currentUser + " to Car Rentals System!");
+        System.out.println("\n=========================================================================== \n\n Welcome Mr. " + getLoggedInUser() + " to Car Rentals interface! Book a car for your journey. \n\n=========================================================================== \n");
+
+
+
+
+        // System.out.println("Logged in user: " + ManageUser.currentUser);
+        // System.out.println("Role: " + ManageUser.currentRole);
         Scanner sc = new Scanner(System.in);
         while (true) {
             System.out.println("\n1. Add Booking");
@@ -34,11 +55,11 @@ public class CarRentals {
         }
     }
 
-    // -------------------- Add Booking --------------------
+    
     private static void addBooking(Scanner sc) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            System.out.print("Enter username: ");
-            String username = sc.nextLine();
+            System.out.print("Enter ClientName: ");
+            String ClientName = sc.nextLine();
 
             System.out.println("Enter journey details (end with a single line containing only 'END'):");
             StringBuilder journey = new StringBuilder();
@@ -52,26 +73,28 @@ public class CarRentals {
             System.out.print("Enter number of passengers: ");
             String passengers = sc.nextLine();
 
-            System.out.print("Enter car suggested: ");
+            // System.out.print("Enter car suggested: ");
+            // String car = sc.nextLine();
+            System.out.print("Enter car ID : ");
             String car = sc.nextLine();
 
             int id = getNextID();
             bw.write("ID=" + id + "\n");
-            bw.write("Username=" + username + "\n");
+            bw.write("ClientName=" + ClientName + "\n");
             bw.write("Journey=" + journey.toString().trim() + "\n");
             bw.write("Passengers=" + passengers + "\n");
-            bw.write("CarSuggested=" + car + "\n");
+            bw.write("Car ID=" + car + "\n");
             bw.write("---\n");
 
-            System.out.println("✅ Booking added with ID " + id);
+            System.out.println("Booking added with ID " + id);
         } catch (IOException e) {
             System.out.println("Error writing to file: " + e.getMessage());
         }
     }
 
-    // -------------------- Search Booking --------------------
+    
     private static void searchBooking(Scanner sc) {
-        System.out.print("Enter search term (username/journey/car): ");
+        System.out.print("Enter search term (ClientName/journey/car): ");
         String term = sc.nextLine().toLowerCase();
 
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
@@ -99,7 +122,7 @@ public class CarRentals {
         }
     }
 
-    // -------------------- Update Booking --------------------
+    
     private static void updateBooking(Scanner sc) {
         System.out.print("Enter booking ID to update: ");
         String idToUpdate = sc.nextLine();
@@ -128,10 +151,10 @@ public class CarRentals {
                             fields.put(l.substring(0, idx), l.substring(idx + 1));
                         }
 
-                        System.out.print("Username (" + fields.get("Username") + "): ");
-                        String newUsername = sc.nextLine();
-                        if (!newUsername.isEmpty())
-                            fields.put("Username", newUsername);
+                        System.out.print("ClientName (" + fields.get("ClientName") + "): ");
+                        String newClientName = sc.nextLine();
+                        if (!newClientName.isEmpty())
+                            fields.put("ClientName", newClientName);
 
                         System.out.println("Journey (" + fields.get("Journey") + ") (end with 'END'):");
                         StringBuilder newJourney = new StringBuilder();
@@ -172,14 +195,14 @@ public class CarRentals {
             }
 
             Files.write(new File(FILE_PATH).toPath(), newLines);
-            System.out.println(updated ? "✅ Booking updated!" : "❌ Booking ID not found.");
+            System.out.println(updated ? "Booking updated!" : "Booking ID not found.");
 
         } catch (IOException e) {
             System.out.println("Error updating file: " + e.getMessage());
         }
     }
 
-    // -------------------- Delete Booking --------------------
+    
     private static void deleteBooking(Scanner sc) {
         System.out.print("Enter booking ID to delete: ");
         String idToDelete = sc.nextLine();
@@ -211,14 +234,14 @@ public class CarRentals {
             }
 
             Files.write(new File(FILE_PATH).toPath(), newLines);
-            System.out.println(deleted ? "✅ Booking deleted!" : "❌ Booking ID not found.");
+            System.out.println(deleted ? "Booking deleted!" : "Booking ID not found.");
 
         } catch (IOException e) {
             System.out.println("Error deleting file: " + e.getMessage());
         }
     }
 
-    // -------------------- Get Next ID --------------------
+    
     private static int getNextID() {
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
